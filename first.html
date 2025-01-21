@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Behavior Chatbot & Q&A</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f1f1f1;
+        }
+
+        .chatbox-container {
+            width: 350px;
+            margin-bottom: 40px;
+        }
+
+        .chatbox {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .chatbox-header {
+            background-color: #28a745;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .messages {
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-input {
+            width: calc(100% - 100px);
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            outline: none;
+            border-top: 1px solid #ddd;
+        }
+
+        .send-button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-top: 1px solid #ddd;
+        }
+
+        .send-button:hover {
+            background-color: #218838;
+        }
+
+        .message {
+            margin: 5px 0;
+        }
+
+        .user-message {
+            text-align: right;
+            color: #007BFF;
+        }
+
+        .bot-message {
+            text-align: left;
+            color: #555;
+        }
+
+        /* Autocomplete dropdown styling */
+        .autocomplete-suggestions {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: white;
+            position: absolute;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .autocomplete-suggestion {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .autocomplete-suggestion:hover {
+            background-color: #ddd;
+        }
+
+        /* Q&A section styling */
+        .qa-container {
+            width: 600px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border: 2px solid #ddd;
+            font-family: Arial, sans-serif;
+        }
+
+        .line {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .copy-button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <!-- Chatbot Section -->
+    <div class="chatbox-container">
+        <div class="chatbox" id="chatbox">
+            <div class="chatbox-header">Bird Behavior Chatbot</div>
+            <div class="messages" id="messages"></div>
+            <div class="input-container" style="position: relative;">
+                <input type="text" id="userInput" class="user-input" placeholder="Ask about birds..." oninput="showSuggestions()">
+                <button onclick="sendMessage()" class="send-button">Send</button>
+                <div id="suggestions" class="autocomplete-suggestions"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q&A Section -->
+    <div class="qa-container">
+        <div class="line">
+            <p><strong>What is a bird?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>What do birds eat?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>Why do birds sing?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>How do birds fly?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>How do birds see?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>Do all birds fly?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>How do birds build nests?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>What are the different types of birds?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>Why do birds migrate?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+        <div class="line">
+            <p><strong>How far do birds migrate?</strong>
+                <button class="copy-button" onclick="copyText(this)">Copy Text</button>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const birdQAs = [
+            { question: "what is a bird?", answer: "A bird is a warm-blooded vertebrate animal that has feathers, wings, and typically the ability to fly." },
+            { question: "what do birds eat?", answer: "Birds' diets vary, but many eat seeds, insects, fruits, and nectar. Some are carnivorous and eat small animals." },
+            { question: "why do birds sing?", answer: "Birds sing to communicate, establish territory, and attract mates, especially during mating seasons." },
+            { question: "how do birds fly?", answer: "Birds fly by flapping their wings, which generate lift, and using air currents to glide." },
+            { question: "how do birds see?", answer: "Birds have excellent vision, with some species able to see ultraviolet light, and they have large eyes relative to their head size." },
+            { question: "do all birds fly?", answer: "No, some birds like penguins and ostriches are flightless but are adapted to their environments." },
+            { question: "how do birds build nests?", answer: "Birds build nests using a variety of materials such as twigs, grass, feathers, and mud, often chosen for the nest's durability and warmth." },
+            { question: "what are the different types of birds?", answer: "There are many types of birds, including songbirds, waterfowl, birds of prey, and flightless birds." },
+            { question: "why do birds migrate?", answer: "Birds migrate to find better food sources, breeding grounds, and more favorable climates." },
+            { question: "how far do birds migrate?", answer: "Some birds can migrate thousands of miles, like the Arctic Tern, which migrates over 40,000 miles each year." }
+        ];
+
+        function showSuggestions() {
+            const userInput = document.getElementById('userInput').value.toLowerCase();
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.innerHTML = '';
+
+            if (userInput.trim() === '') return;
+
+            const filteredQuestions = birdQAs.filter(qa =>
+                qa.question.toLowerCase().includes(userInput)
+            );
+
+            filteredQuestions.forEach(qa => {
+                const suggestionDiv = document.createElement('div');
+                suggestionDiv.classList.add('autocomplete-suggestion');
+                suggestionDiv.textContent = qa.question;
+                suggestionDiv.onclick = () => {
+                    document.getElementById('userInput').value = qa.question;
+                    suggestionsDiv.innerHTML = '';
+                };
+                suggestionsDiv.appendChild(suggestionDiv);
+            });
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('userInput').value;
+            if (userInput.trim() === '') return;
+
+            addMessage(userInput, 'user');
+
+            const botResponse = generateResponse(userInput);
+
+            setTimeout(() => {
+                addMessage(botResponse, 'bot');
+            }, 500);
+
+            document.getElementById('userInput').value = '';
+        }
+
+        function addMessage(message, sender) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function generateResponse(userInput) {
+            const lowerInput = userInput.toLowerCase();
+
+            for (let qa of birdQAs) {
+                if (lowerInput.includes(qa.question.toLowerCase())) {
+                    return qa.answer;
+                }
+            }
+
+            return "Sorry, I didn't understand that. Can you please ask something else about birds?";
+        }
+
+        function copyText(button) {
+            const paragraph = button.previousElementSibling;
+            const text = paragraph.innerText;
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            alert("Text copied to clipboard: " + text);
+        }
+    </script>
+
+</body>
+</html>
